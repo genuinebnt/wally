@@ -2,7 +2,7 @@ use std::fmt;
 
 use clap::{arg, Parser, Subcommand};
 
-use crate::api::fetch_wallpapers;
+use crate::{api::fetch_wallpapers, config::get_configuration, db::Db};
 
 #[derive(Parser)]
 #[clap(name = "wallhaven-cli", version = "0.1.0", author = "Genuine")]
@@ -81,8 +81,11 @@ impl Cli {
         dotenv::dotenv()?;
         match &self.command {
             Commands::Index { params } => {
-                let wallpapers = fetch_wallpapers(params.clone()).await?;
-                println!("{:#?}", wallpapers.data);
+                let wallpapers = fetch_wallpapers(params.clone(), 5).await?;
+                let config = get_configuration().unwrap();
+                let url = config.database.connection_string();
+                let db = Db::new(&url).await.unwrap();
+                db.bulk_insert_wallpapers(wallpapers).await.unwrap();
             }
         }
 

@@ -26,7 +26,7 @@ impl DatabaseSettings {
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let settings = config::Config::builder()
         .add_source(config::File::new(
-            "configuration.yaml",
+            "config.yaml",
             config::FileFormat::Yaml,
         ))
         .build()?;
